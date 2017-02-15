@@ -1,0 +1,139 @@
+def huffman(tab): # tab contient [f(a),"a"] où f est la fréquence
+    tab.sort()
+    arbre = [tab[0], [tab[0][0] + tab[1][0]], tab[1]] #(feuille, frequence du noeud, feuille). Les noeuds sont des listes de len 1, les feuilles des listes de len 2
+    return huffman_aux(arbre, [[ tab[0][0] + tab[1][0] ]] + tab[2:]) #retourne l'arbre de huffman associé à tab
+    
+def huffman_aux(arbre,tab):
+    if len(tab) < 2:
+        return arbre
+    else:
+        f = tab[0][0]  #frequence du noeud de arbre
+        tab.sort()
+        if len(tab[0]) == len(tab[1]) == 2:     #ie si le noeud n'est pas dans les 2 premieres cases
+            tab2 = [k for k in tab if len(k)==2]    #on retire f de tab pour l'appel récursif
+            arbre_2 = [tab[0], [tab[0][0] + tab[1][0]], tab[1]]
+            if tab[0][0] + tab[1][0] < f :
+                new_arbre = [arbre_2, [f + tab[0][0] + tab[1][0]], arbre]
+            else:
+                new_arbre = [arbre, [f + tab[0][0] + tab[1][0]] , arbre_2]
+            return huffman_aux(new_arbre, [[f + tab[0][0] + tab[1][0]]] + tab2[2:]) 
+        elif len(tab[0]) == 1:  # si le noueud est en premiere position
+            new_arbre = [arbre, [f + tab[1][0]], tab[1]]
+            return (huffman_aux(new_arbre, [[f + tab[1][0]]] + tab[2:]))
+        else:   # si le noeud est en 2eme position
+            new_arbre = [tab[0], [f + tab[0][0]], arbre]
+            return (huffman_aux(new_arbre, [[f + tab[0][0]]] + tab[2:]))
+        
+
+def tab_frequences(str): #crée le tableau des frequences pour un texte
+    n = len(str)
+    caracteres = []
+    frequences = []
+    for i in str:
+        if not i in caracteres:
+            caracteres.append(i)
+            frequences.append(1/n)
+        else:
+            for k in range(len(caracteres)):
+                if i == caracteres[k]:
+                    frequences[k] = frequences[k] + 1/n 
+    return [[frequences[i], caracteres[i]] for i in range(len(caracteres))]
+    
+def in_arbre(arbre, ch):
+    if len(arbre) == 2 :  # alors c'est une feuille
+        return arbre[1] == ch
+    elif len(arbre) ==3 :
+        return( in_arbre(arbre[0], ch) or in_arbre(arbre[2], ch) )
+    else:
+        return False
+    
+def code_huffman(arbre, ch): #code d'un caractère
+    if len(arbre)==2:
+        if arbre[1] == ch:
+            return("")
+    elif in_arbre(arbre[0],ch):
+        return "0"+code_huffman(arbre[0], ch)
+    elif in_arbre(arbre[2], ch):
+        return "1"+code_huffman(arbre[2], ch)
+    else:
+        return "*"
+        
+    
+def comp_huffman(str):
+    tab = tab_frequences(str)
+    arbre = huffman(tab)
+    str2 = ""
+    for ch in str:
+        str2 = str2 + code_huffman(arbre,ch)
+    return (str2, arbre)
+
+def decomp_huffman_aux(str, arbre, indice): #indice est l'indice du premier bit codant un caractère, la fonction trouve le caractere et l'indice du début du code du suivant
+    if len(arbre) == 2:
+        return (arbre[1], indice)
+    else:
+        return ( decomp_huffman_aux(str, arbre[2*int(str[indice])], indice+1) ) #si on lit un 0 on va à gauche, sinon à droite
+        
+def decomp_huffman(str, arbre):
+    texte = ""
+    indice = 0
+    while indice < len(str):
+        x = decomp_huffman_aux(str ,arbre, indice)
+        texte = texte + x[0]
+        indice = x[1]
+    return texte
+
+
+##  test
+str = """11111111110110111111011010111111111101100111110011100101011001101000110111111110000100111011111101111111101011111111110011110000001010111111110000100111111111001111111010110011011110010101100110100011111010010011111111011111101011110111110100110100111111111110101011111111101110011100111111011110101110011110001111101111111011010110111111110000100111010011010110011111001101001001111110011111011111111010111100110011100111111111110101011011111111110110011111111110101111010011101111011111110101111101001111111111101010111110000110111111111011100111111110010111111110101111111111111111111110011101011100111100011110111110100011011111111100110111111111110111100111111111100000111110100011111100110011001111111110010101111111111100100111110011100011001111001111110001110100100111111001111101011110111000111111100110111001111111110101111111111111110011100111111111111101"""
+
+arbre =  [[[0.10982658959537568, 'e'],
+   [0.2832369942196531],
+   [0.1734104046242774, ' ']],
+  [0.9999999999999998],
+  [[[0.0867052023121387, 'a'],
+    [0.1734104046242774],
+    [0.0867052023121387, 's']],
+   [0.7167630057803467],
+   [[[0.05780346820809247, 'o'],
+     [0.11560693641618494],
+     [0.05780346820809247, 'r']],
+    [0.5433526011560692],
+    [[[0.040462427745664734, 'm'],
+      [0.09248554913294796],
+      [0.052023121387283225, 't']],
+     [0.42774566473988423],
+     [[[0.028901734104046242, 'n'],
+       [0.06936416184971098],
+       [0.040462427745664734, 'h']],
+      [0.3352601156069363],
+      [[[0.023121387283236993, 'l'],
+        [0.046242774566473986],
+        [0.023121387283236993, 'y']],
+       [0.26589595375722536],
+       [[[0.023121387283236993, 'd'],
+         [0.046242774566473986],
+         [0.023121387283236993, 'i']],
+        [0.21965317919075136],
+        [[[0.017341040462427744, 'w'],
+          [0.040462427745664734],
+          [0.023121387283236993, ',']],
+         [0.1734104046242774],
+         [[[0.017341040462427744, 'u'],
+           [0.03468208092485549],
+           [0.017341040462427744, 'v']],
+          [0.13294797687861268],
+          [[[0.017341040462427744, 'k'],
+            [0.03468208092485549],
+            [0.017341040462427744, 'p']],
+           [0.0982658959537572],
+           [[[0.011560693641618497, 'c'],
+             [0.028901734104046242],
+             [[0.005780346820809248, 'g'],
+              [0.017341040462427744],
+              [[0.005780346820809248, 'H'],
+               [0.011560693641618497],
+               [0.005780346820809248, 'f']]]],
+            [0.06358381502890173],
+            [[0.017341040462427744, "'"],
+             [0.03468208092485549],
+             [0.017341040462427744, 'b']]]]]]]]]]]]]
