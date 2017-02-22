@@ -27,7 +27,7 @@ let rec fft a = let n = vect_length a in match n with
 	|_ -> let a_0 = paire a and a_1 = impaire a and y = make_vect n {Re = 0.; Im = 0.} in
 	      let y_0 = fft a_0 and y_1 = fft a_1 in
 	      for k = 0 to n/2 - 1 do 
-	      	y.(k) <- add y_0.(k) (mult (w k n) y_1.(k));
+	      		y.(k) <- add y_0.(k) (mult (w k n) y_1.(k));
 			y.(k + n/2) <- add y_0.(k) (mult (w (k+n/2) n) y_1.(k))
 		done;
  	      y;;
