@@ -32,19 +32,18 @@ def fft_recursive(A):
     
 def fft_recursive_inverse(B):
     n=len(B)
+    C=[B[i]/n for i in range(n)]
     if n==1:
-        return(B)
+        return(C)
     wn=exp(2*pi*1j/n)
     w=1
-    B0=[B[2*k] for k in range(0,n//2)]
-    B1=[B[2*k+1] for k in range(0,n//2)]
-    Y0=fft_recursive(B0)
-    Y1=fft_recursive(B1)
+    C0=[C[2*k] for k in range(0,n//2)]
+    C1=[C[2*k+1] for k in range(0,n//2)]
+    Y0=fft_recursive(C0)
+    Y1=fft_recursive(C1)
     Y=[0 for i in range(n)]
     for k in range(0,n//2):
         Y[k]=Y0[k]+w*Y1[k]
         Y[k+n//2]=Y0[k]-w*Y1[k]
-        w=w*wn  
-    for k in range(n):
-        Y[k]=Y[k]/n    
+        w=w*wn    
     return(Y)
