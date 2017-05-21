@@ -1,4 +1,6 @@
-def huffman(tab): # tab contient [f(a),"a"] où f est la fréquence
+## Huffman semi-adaptatif
+
+def huffman(tab): # tab contient les [f(a),"a"] où f est la fréquence. On suppose qu'il y a au moins 2 caractères
     tab.sort()
     arbre = [tab[0], [tab[0][0] + tab[1][0]], tab[1]] #(feuille, frequence du noeud, feuille). Les noeuds sont des listes de len 1, les feuilles des listes de len 2
     return huffman_aux(arbre, [[ tab[0][0] + tab[1][0] ]] + tab[2:]) #retourne l'arbre de huffman associé à tab
@@ -17,7 +19,7 @@ def huffman_aux(arbre,tab):
             else:
                 new_arbre = [arbre, [f + tab[0][0] + tab[1][0]] , arbre_2]
             return huffman_aux(new_arbre, [[f + tab[0][0] + tab[1][0]]] + tab2[2:]) 
-        elif len(tab[0]) == 1:  # si le noueud est en premiere position
+        elif len(tab[0]) == 1:  # si le noeud est en premiere position
             new_arbre = [arbre, [f + tab[1][0]], tab[1]]
             return (huffman_aux(new_arbre, [[f + tab[1][0]]] + tab[2:]))
         else:   # si le noeud est en 2eme position
@@ -81,6 +83,82 @@ def decomp_huffman(str, arbre):
         texte = texte + x[0]
         indice = x[1]
     return texte
+
+## Huffman adaptatif
+def ascii_to_binaire(ch):
+    n = ord(ch)
+    res = ""
+    c = -1
+    while c != 0:
+        if n%2 == 1:
+            res = "1" + res
+        else:
+            res = "0" + res
+        c = n//2
+        n = c
+    while len(res)<7:
+        res = "0" + res
+    return(res)
+    
+def chaine_binaire_to_ascii(str):
+    code = 0
+    taille = 0
+    for i in str:
+        code = 2*code + int(i)
+    return chr( code ) # chr donne le caractere codé par le code
+    
+
+def new_ch(ch, tab): # ajoute ch à tab et renvoie l'arbre auquel on a ajouté ch
+    tab.append([1,ch]) # on compte le nombre de caractères et pas leur fréquence, ce qui revient au même pour l'arbre
+    return huffman(tab)
+        
+
+def comp_ad_huffman(str):
+    arbre = [[0,""]]
+    tab = [[0,""]]
+    res = ""
+    for ch in str:
+        if in_arbre(arbre, ch):
+            res = res + code_huffman(arbre,ch)
+            for i in tab:
+                if i[1]==ch:
+                    i[0]+=1 # on incrémente ch
+            arbre = huffman(tab) # on met à jour l'arbre
+        else:
+            res = res + code_huffman(arbre,"") + ascii_to_binaire(ch) # on code "" (pour prévenir du code ascii) puis ch en ascii
+            arbre = new_ch(ch, tab) # on met à jour l'arbre
+    return res
+
+
+def decomp_ad_huffman(str):
+    arbre = [[0,""]]
+    tab = [[0,""]]    # on mettra tab et arbre à jour exactement comme on le fait pour la compression
+    res = ""
+    indice = 0
+    while indice < len(str):
+        if decomp_huffman_aux(str,arbre,indice)[0] == "":   # si on trouve "", le code suivant sera le code ascii d'une nouvelle lettre
+            indice = decomp_huffman_aux(str,arbre,indice)[1] # on saute le code de ""
+            ch = chaine_binaire_to_ascii( str[indice:indice+7] ) # puis on prend la lettre codée en ascii sur 7 bits
+            res = res + ch
+            indice += 7 
+            arbre = new_ch(ch, tab) # on met l'arbre et le tableau à jour en ajoutant ch
+        else:
+            l = decomp_huffman_aux(str,arbre,indice)
+            indice = l[1] 
+            res = res + l[0] # le caractere est ici codé par l'arbre de huffman
+            for i in tab: # on met à jour l'arbre et le tableau dans le cas d'une lettre deja présente
+                if i[1]==l[0]:
+                    i[0]+=1 
+            arbre = huffman(tab)
+    return res
+            
+    
+
+## comparaison
+def diff(str):
+    a = len(comp_ad_huffman(str))
+    b = len(comp_huffman(str)[0])
+    return 100 * (a-b)/a
 
 
 ##  test
