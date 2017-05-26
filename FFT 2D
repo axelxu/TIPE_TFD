@@ -1,8 +1,10 @@
+# FFT2D à comparer à np.fft.fft2
+# FFTI2D à comparer à np.fft.ifft2
+
 from cmath import exp
 from cmath import pi
-import numpy as np
 
-def fft_recursive(A):
+def fft(A):
     n=len(A)
     if n==1:
         return(A)
@@ -10,25 +12,62 @@ def fft_recursive(A):
     w=1
     A0=[A[2*k] for k in range(0,n//2)]
     A1=[A[2*k+1] for k in range(0,n//2)]
-    Y0=fft_recursive(A0)
-    Y1=fft_recursive(A1)
+    Y0=fft(A0)
+    Y1=fft(A1)
     Y=[0 for i in range(n)]
     for k in range(0,n//2):
         Y[k]=Y0[k]+w*Y1[k]
         Y[k+n//2]=Y0[k]-w*Y1[k]
         w=w*wn
     return(Y)
+    
+def fft_inverse(B):
+    n=len(B)
+    if n==1:
+        return(B)
+    wn=exp(2*pi*1j/n)
+    w=1
+    B0=[B[2*k] for k in range(0,n//2)]
+    B1=[B[2*k+1] for k in range(0,n//2)]
+    Y0=fft_inverse(B0)
+    Y1=fft_inverse(B1)
+    Y=[0 for i in range(n)]
+    for k in range(0,n//2):
+        Y[k]=Y0[k]+w*Y1[k]
+        Y[k+n//2]=Y0[k]-w*Y1[k]
+        w=w*wn    
+    return(Y)
+
+def ffti(B):
+    n=len(B)
+    return([fft_inverse(B)[i]/n for i in range(len(B))]) 
 
 def G(mat,u,y):
-    A=[mat[x][y] for x in range(T)]
-    return ( fft_recursive(A) )
+    n=len(mat)
+    A=[mat[x][y] for x in range(n)]
+    return ( fft(A)[u] )
     
 def F(mat,u,v):
-    A=[G(mat,u,y) for y in range(T)]
-    return ( fft_recursive(A) )
+    n=len(mat)
+    A=[G(mat,u,y) for y in range(n)]
+    return ( fft(A)[v] )
 
 def FFT2D(mat):
     n=len(mat)
-    FFTmat=[[F(mat,u,v) for u in range(n)] for v in range(n)]
-    return (FFTmat)
+    FFTmat=[[F(mat,u,v) for v in range(n)] for u in range(n)]
+    return( FFTmat )
+
+def GI(mat,u,y):
+    n=len(mat)
+    A=[mat[x][y] for x in range(n)]
+    return ( ffti(A)[u] )
     
+def FI(mat,u,v):
+    n=len(mat)
+    A=[GI(mat,u,y) for y in range(n)]
+    return ( ffti(A)[v] )
+
+def FFTI2D(mat):
+    n=len(mat)
+    FFTImat=[[FI(mat,u,v) for u in range(n)] for v in range(n)]
+    return( FFTImat )
