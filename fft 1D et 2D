@@ -1,8 +1,3 @@
-# FFT2D à comparer à np.fft.fft2
-# FFTI2D à comparer à np.fft.ifft2
-# fft à comparer à np.fft.fft
-# ffti à comparer à np.fft.ifft
-
 from cmath import exp
 from cmath import pi
 import numpy as np
@@ -23,40 +18,58 @@ def fft(A):
         Y[k+n//2]=Y0[k]-w*Y1[k]
         w=w*wn
     return(Y)
-    
+
 def ffti(B):
     n=len(B)
     conjB=[np.conj(i) for i in B]
     C=fft(conjB)
-    conjC=[np.conj(i)/n for i in C]
+    conjC=[np.conj(i)/2 for i in C]
     return(conjC)
-
+    
+def sym(x):
+    n=len(x)
+    y=[0 for i in range(2*n)]
+    for i in range(0,n):
+        y[i]=x[i]
+    for i in range(n,2*n):
+        y[i]=x[2*n-i-1]
+    return(y)
+    
+def coef(k):
+    if k==0:
+        return 1/(2**(1/2))
+    return 1
+    
+def DCT(x):
+    n=len(x) 
+    y=sym(x)
+    fy=fft(y)
+    dfy=[(coef(k)*exp(-pi*1j*k/(2*n))*fy[k]/n).real for k in range(len(fy)//2)]
+    return ( dfy )
+            
 def G(mat,u,y):
     n=len(mat)
     A=[mat[x][y] for x in range(n)]
-    return ( fft(A)[u] )
+    return ( DCT(A)[u] )
     
 def F(mat,u,v):
     n=len(mat)
     A=[G(mat,u,y) for y in range(n)]
-    return ( fft(A)[v] )
+    return ( DCT(A)[v] )
 
-def FFT2D(mat):
+def DCT2D(mat):
     n=len(mat)
-    FFTmat=[[F(mat,u,v) for v in range(n)] for u in range(n)]
-    return( FFTmat )
+    FFTmat=[[F(mat,u,v)*n/2 for v in range(n)] for u in range(n)]
+    return( FFTmat )   
 
-def GI(mat,u,y):
-    n=len(mat)
-    A=[mat[x][y] for x in range(n)]
-    return ( ffti(A)[u] )
+def quantification(m,s):
+    n=len(m)
+    mat=[[round(m[i][j]/(1+s*(1+i+j))) for j in range(n)] for i in range(n)]
+    return(mat)
+
+def dequantification(m,s):
+    n=len(m)
+    mat=[[m[i][j]*(1+s*(1+i+j)) for j in range(n)] for i in range(n)]
+    return(mat)
     
-def FI(mat,u,v):
-    n=len(mat)
-    A=[GI(mat,u,y) for y in range(n)]
-    return ( ffti(A)[v] )
-
-def FFTI2D(mat):
-    n=len(mat)
-    FFTImat=[[FI(mat,u,v) for v in range(n)] for u     in range(n)]
-    return( FFTImat )
+m=[[140,144,147,140,140,155,179,175],[144,152,140,147,140,148,167,179],[152,155,136,167,163,162,152,172],[168,145,156,160,152,155,136,160],[162,148,156,148,140,136,147,162],[147,167,140,155,155,140,136,162],[136,156,123,167,162,144,140,147],[148,155,136,155,152,147,147,136]]
