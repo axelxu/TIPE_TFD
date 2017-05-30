@@ -411,7 +411,7 @@ def compression_image_ad_huffman(mat,s) :
     (m,n,l)=np.shape(mat)
     res=''
     for k in range(l) :
-        a=comp_ad_huffman(mat_to_str_zigzag(mat[:,:,k]))
+        a=comp_ad_huffman(mat_to_str_zigzag(pour_huffman(mat[:,:,k],s)))
         res+=a
     return(res)
         
