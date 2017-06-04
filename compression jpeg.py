@@ -57,17 +57,6 @@ image4=plt.imread('C:\\Users\\qxu\\Documents\\des.png')
         for j in range(m2) :
             l.append(mat[i:i+1(8)][j:j+1])"""
 
-def pour_huffman(mat,s) :
-    (n,m) = np.shape(mat) 
-    mat_comp=np.copy(mat)
-    n2=n//8
-    m2=m//8 
-    for i in range (n2) :
-        for j in range(m2) :
-            mat88=mat_comp[i*8:(i+1)*8,j*8:(j+1)*8]*255
-            mat88_comp=quantification(tcd(mat88),s)
-            mat_comp[i*8:(i+1)*8,j*8:(j+1)*8] = mat88_comp/255
-    return(mat_comp)
     
 def jpeg(mat,s) :
     (n,m) = np.shape(mat) 
@@ -336,6 +325,18 @@ def mat_to_str_zigzag(mat) : #avec zigzag#
     return(res) 
 
 
+def pour_huffman(mat,s) :
+    (n,m) = np.shape(mat) 
+    mat_comp=np.copy(mat)
+    n2=n//8
+    m2=m//8 
+    res=''
+    for i in range (n2) :
+        for j in range(m2) :
+            mat88=mat_comp[i*8:(i+1)*8,j*8:(j+1)*8]*255
+            mat88_comp=quantification(tcd(mat88),s)
+            res+=' ' + mat_to_str_zigzag(mat88_comp)
+    return(mat_comp)
 
 
 
@@ -343,7 +344,7 @@ def compression_image_ad_huffman(mat,s) :
     (m,n,l)=np.shape(mat)
     res=''
     for k in range(l) :
-        a=comp_ad_huffman(mat_to_str_zigzag(pour_huffman(mat[:,:,k],s)))
+        a=comp_ad_huffman(pour_huffman(mat[:,:,k],s))
         res+=a
     return(res)
         
