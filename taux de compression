@@ -303,7 +303,7 @@ def compression_image_ad_huffman(mat,s) :
     for k in range(3) :
         a=comp_ad_huffman(pour_huffman(mat[:,:,k],s))
         res+=a
-    return(len(res))
+    return(res)
         
 def taux_compression(mat,s) :
     (n,m,l) = np.shape(mat) 
