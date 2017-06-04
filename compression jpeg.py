@@ -48,7 +48,7 @@ def compression(mat,s) :
 image=plt.imread('C:\\Users\\qxu\\Documents\\boston.png')
 image2=plt.imread('C:\\Users\\qxu\\Documents\\trefle.png')
 image3=plt.imread('C:\\Users\\qxu\\Documents\\pd.png')
-image4=plt.imread('C:\\Users\\qxu\\Documents\\kalash.png')
+image4=plt.imread('C:\\Users\\qxu\\Documents\\des.png')
 """def decoupage(mat) :
     (n,m,k) = np.shape(mat) 
     n2=n//8
@@ -99,75 +99,7 @@ def comp(mat,s) :
     plt.imshow(mat_comp)
     plt.show()
     return()
-        
-        
-##Variante avec fft 
 
-def fft_recursive(A):
-    n=len(A)
-    if n==1:
-        return(A)
-    wn=exp(-2*pi*1j/n)
-    w=1
-    A0=[A[2*k] for k in range(0,n//2)]
-    A1=[A[2*k+1] for k in range(0,n//2)]
-    Y0=fft_recursive(A0)
-    Y1=fft_recursive(A1)
-    Y=[0 for i in range(n)]
-    for k in range(0,n//2):
-        Y[k]=Y0[k]+w*Y1[k]
-        Y[k+n//2]=Y0[k]-w*Y1[k]
-        w=w*wn
-    return(Y)
-
-def G(mat,u,y):
-    A=[mat[x][y] for x in range(T)]
-    return ( fft_recursive(A) )
-    
-def F(mat,u,v):
-    A=[G(mat,u,y) for y in range(T)]
-    return ( fft_recursive(A) )
-
-def FFT2D(mat):
-    n=len(mat)
-    FFTmat=[[F(mat,u,v) for u in range(n)] for v in range(n)]
-    return (FFTmat)
-def tcd2 (mat) :
-    res = [np.zeros(2*8-1)for i in range(2*8-1)]
-    for i in range(2*8-1) :
-        for j in range(2*8-1) :
-            if i>=7 and j>=7 :
-                res[i][j] = mat[i-7][j-7]
-            if i<7 and j>=7 :
-                res[i][j] = mat[-1-(i-7)][j-7]
-            if i>=7 and j<7 :
-                res[i][j] = mat[i-7][-1-(j-7)] 
-            if i<7 and j<7 :
-                res[i][j] = mat[-1-(i-7)][-1-(j-7)] 
-    fftmat=FFT2D(res) 
-    return(FFT2D(fftmat[7:,7:]))
-
-def tcd2_inverse(mat) :
-    res = [np.zeros(2*8-1)for i in range(2*8-1)]
-    for i in range(2*8-1) :
-        for j in range(2*8-1) :
-            if i>=7 and j>=7 :
-                res[i][j] = mat[i-7][j-7]
-            if i<7 and j>=7 :
-                res[i][j] = mat[-1-(i-7)][j-7]
-            if i>=7 and j<7 :
-                res[i][j] = mat[i-7][-1-(j-7)] 
-            if i<7 and j<7 :
-                res[i][j] = mat[-1-(i-7)][-1-(j-7)] 
-    fftmat=FFT2D(res) 
-    return(FFT2D(fftmat[7:,7:]))
-
-    
-def compression2(mat,s) :
-    mat_cos=tcd2(mat)
-    return(tcd2_inverse(dequantification(quantification(mat,s),s)))
-    
-##huffman 
 
 
 ## Huffman semi-adaptatif
@@ -415,3 +347,6 @@ def compression_image_ad_huffman(mat,s) :
         res+=a
     return(res)
         
+def taux_compression(mat,s) :
+    (n,m,l) = np.shape(mat) 
+    return(1-(n*m*l*9*7)/len(compression_image_ad_huffman(mat,s)))
