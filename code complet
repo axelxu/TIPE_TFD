@@ -278,7 +278,7 @@ def RLE_chiffres(chaine):   # En O(n)
     while i < n:
         x = chaine[i]            
         c = 1
-        if x=='`' or x=='-':
+        if x=='`' or x=='-' or x=='.':
             res= res+x
             i=i+1
         else:
@@ -390,7 +390,7 @@ def tcd2quant(mat,s):
             passage[i][j] = coef(j)*(np.sqrt(2/8))*np.cos(((2*i+1)*j*np.pi)/(2*8))
     tcd2=np.dot(np.transpose(passage),np.dot(mat,passage))
     tcd2quant=np.round(quantification(tcd2,s))
-    return([[int(tcd2quant[i][j]) for j in range(8)] for i in range(8)])
+    return(tcd2quant)
 
 def pour_huffman(mat,s) :
     (n,m) = np.shape(mat) 
